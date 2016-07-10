@@ -1,0 +1,26 @@
+#!/usr/bin/env escript
+%% -*- erlang -*-
+%%! -name installation_script -pa ebin
+-module(main).
+main(String) ->                               %script starting from main([args])
+    my_module:foo(),
+    io:format("Args: ~p~n", [dict:to_list(parse_args(String))]),
+    halt(0);
+main(_) ->
+    io:format("Undefined parameter"),
+    halt(1).
+
+-spec parse_args(list()) -> tuple().
+-spec parse_args(list(), tuple()) -> tuple().
+parse_args(Args) when length(Args) rem 2 == 0 ->
+    parse_args(Args, dict:new());
+parse_args(_) ->
+    erlang:error("Arguments count are odd.").
+parse_args([], Acc) -> Acc;
+parse_args([["-" | Key], Val | Tail], Acc)->
+    parse_args(Tail, dict:append(Key, Val, Acc)).
+
+%%  escript:script_name() - current script path
+%% -mode(compile).
+%% -compile(native).
+%% {ok, Ssh3} = ssh:connect("192.168.0.49", 22, [{user, "root"}, {password, "a1s2d3!@#"}, {quiet_mode, 'true'}]).

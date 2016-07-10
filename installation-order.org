@@ -1,0 +1,39 @@
+
+* Install Kazoo
+  - add repo
+    wget -P /etc/yum.repos.d/ http://repo.2600hz.com/2600hz.repo
+    # We need this for dependencies
+    wget http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-7.noarch.rpm
+    rpm -Uvh epel-release-7-7.noarch.rpm
+    # And this for Erlang > R16
+    wget http://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+    rpm -Uvh erlang-solutions-1.0-1.noarch.rpm  
+  sudo yum update
+sudo yum install -y erlang-17.5.3-1.el7.centos
+  - Set correct IP / hostname
+  - Disable firewall and SELinux
+    service iptables save && service iptables stop && chkconfig iptables off
+  	Edit /etc/selinux/config (restart required)
+    SELINUX=disabled
+  - resolve dependencies
+    apt-get install build-essential libxslt-dev \
+    zip unzip expat zlib1g-dev libssl-dev curl \
+    libncurses5-dev git-core libexpat1-dev \
+    htmldoc git curl wget
+  - build Kazoo
+    $ cd /opt
+    $ git clone https://github.com/2600Hz/kazoo.git
+    $ cd kazoo
+    $ make
+  - Turn on SUP
+    ln -s core/sup/priv/sup /usr/bin/sup
+  - 
+* Install Freeswitch
+
+* Install Coutch
+
+* Install Kamailio
+
+* Install RabbitMQ
+
+* Install Haproxy
