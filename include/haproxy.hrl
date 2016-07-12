@@ -1,0 +1,1 @@
+-define(HAPROXY_OPTIONS, []).

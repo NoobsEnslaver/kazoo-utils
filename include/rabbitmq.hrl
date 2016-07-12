@@ -1,0 +1,1 @@
+-define(RABBITMQ_OPTIONS, []).

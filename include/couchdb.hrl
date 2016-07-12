@@ -1,0 +1,1 @@
+-define(COUCHDB_OPTIONS, []).

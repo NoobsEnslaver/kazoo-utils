@@ -1,0 +1,1 @@
+-define(KAMAILIO_OPTIONS, []).
