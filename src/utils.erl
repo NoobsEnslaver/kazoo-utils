@@ -1,5 +1,5 @@
 -module(utils).
--export([normalize/1, parse_args/1]).
+-export([normalize/1, parse_args/1, flat/1]).
 
 -spec normalize(string()) -> string().
 normalize(Str)->
@@ -23,3 +23,7 @@ parse_args(_) ->
 parse_args([], Acc) -> Acc;
 parse_args([["-" | Key], Val | Tail], Acc)->
     parse_args(Tail, dict:append(Key, Val, Acc)).
+
+-spec flat([string()]) ->string().
+flat(List)->
+    lists:flatten(lists:join(" ", List)).

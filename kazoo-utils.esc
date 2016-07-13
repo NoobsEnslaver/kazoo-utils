@@ -3,16 +3,37 @@
 %%! -name installation_script -pa ebin include
 %% -mode(compile).
 %% -compile(native).
-
+-include("include/config.hrl").
 
 %% INPUT POINT %%
 main(_String) ->
     ssh:start(),
     {ok, ConnectionRef} = ssh:connect("10.11.102.134", 22, [{user, "root"}, {password, "a1s2d3123"}, {silently_accept_hosts, 'true'}]),    
-    kazoo:install(ConnectionRef, [{'verbose', 'true'}]),
-    freeswitch:install(ConnectionRef, [{'verbose', 'true'}]),
-    kamailio:install(ConnectionRef, [{'verbose', 'true'}]),
-    rabbitmq:install(ConnectionRef, [{'verbose', 'true'}]),
-    couchdb:install(ConnectionRef, [{'verbose', 'true'}]),
-    haproxy:install(ConnectionRef, [{'verbose', 'true'}]),
+    Config = #config{},
+    Options = [{'verbose', 'true'}],
+
+    kazoo:install(ConnectionRef, Options),
+    kazoo:configure(ConnectionRef, Config, Options),
+    
+    freeswitch:install(ConnectionRef, Options),
+    freeswitch:configure(ConnectionRef, Config, Options),
+    
+    kamailio:install(ConnectionRef, Options),
+    kamailio:configure(ConnectionRef, Config, Options),
+
+    rabbitmq:install(ConnectionRef, Options),
+    rabbitmq:configure(ConnectionRef, Config, Options),
+
+    couchdb:install(ConnectionRef, Options),
+    couchdb:configure(ConnectionRef, Config, Options),
+
+    haproxy:install(ConnectionRef, Options),
+    haproxy:configure(ConnectionRef, Config, Options),
+
+    kazoo:test(),
+    freeswitch:test(),
+    kamailio:test(),
+    rabbitmq:test(),
+    couchdb:test(),
+    haproxy:test(),
     halt(0).

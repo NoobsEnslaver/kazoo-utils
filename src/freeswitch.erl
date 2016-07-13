@@ -1,6 +1,6 @@
 -module(freeswitch).
--include("../include/freeswitch.hrl").
--export([install/2]).
+-include("../include/config.hrl").
+-export([install/2, configure/3, test/2]).
 
 -define(DEFAULT_TIMEOUT, 60000).
 -define(DEPS, ["git", "gcc-c++", "autoconf", "automake", "libtool",
@@ -24,14 +24,32 @@
                   %% ,"echo kazoo.nikitakz.local > /etc/localhost"      %FQDN (FIXME)
                   %% ,"echo '127.0.0.1	kazoo.nikitakz.siplabs' >> /etc/localhost"      %FQDN (FIXME)
                   ,"yum install -y freeswitch-config-vanilla sox freeswitch-sounds* freeswitch-kazoo freeswitch-event-erlang-event"
-                  ,"systemctl enable freeswitch && systemctl restart freeswitch"
+                  ,"systemctl enable freeswitch"
                   ,"mkdir /etc/kazoo/logs -p"
                   ,"ln -s /var/log/freeswitch/freeswitch.log /etc/kazoo/logs"
                   ,"ln -s /etc/freeswitch /etc/kazoo/"
+                  ,"epmd -daemon"
 ]).
+
+-define(TESTS, ["systemctl restart freeswitch"]).
+
+-record(freeswitch_config, {
+          cookie
+}).
 
 install(ConnectionRef, Options)->
     lists:zip(?COMMANDS, [ssh_lib:ssh_call(ConnectionRef, Cmd, ?DEFAULT_TIMEOUT, Options) || Cmd <- ?COMMANDS]).
     
-%% test(ConnectionRef, Options)->
-%%     lists:zip(?COMMANDS, [ssh_lib:ssh_call(ConnectionRef, Cmd, ?DEFAULT_TIMEOUT, Options) || Cmd <- ?TESTS]).
+test(ConnectionRef, Options)->
+    lists:zip(?TESTS, [ssh_lib:ssh_call(ConnectionRef, Cmd, ?DEFAULT_TIMEOUT, Options) || Cmd <- ?TESTS]).
+
+
+configure(ConnectionRef, Options, #freeswitch_config{cookie = Cookie})->
+    Configure = ["sed -i 's/change_me/" ++ Cookie ++ "/g' /etc/kazoo/freeswitch/autoload_configs/kazoo.conf.xml"],
+    lists:zip(Configure, [ssh_lib:ssh_call(ConnectionRef, Cmd, ?DEFAULT_TIMEOUT, Options) || Cmd <- Configure]);
+
+configure(ConnectionRef, Options, GeneralConfig)->
+    configure(ConnectionRef, Options, makeFSConfig(GeneralConfig)).
+
+makeFSConfig(#config{cookie = A})->
+    #freeswitch_config{cookie = A}.
